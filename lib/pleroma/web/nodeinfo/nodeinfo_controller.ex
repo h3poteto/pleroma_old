@@ -32,6 +32,24 @@ defmodule Pleroma.Web.Nodeinfo.NodeinfoController do
       |> Repo.all()
       |> Enum.map(fn u -> u.ap_id end)
 
+    features = [
+      "pleroma_api_socket",
+      "mastodon_api_socket",
+      "mastodon_api_streaming",
+      if Keyword.get(media_proxy, :enabled) do
+        "media_proxy"
+      end,
+      if Keyword.get(gopher, :enabled) do
+        "gopher"
+      end,
+      if Keyword.get(chat, :enabled) do
+        "pleroma_api_chat"
+      end,
+      if Keyword.get(suggestions, :enabled) do
+        "3rdparty_suggestions"
+      end
+    ]
+
     response = %{
       version: "2.0",
       software: %{
@@ -53,7 +71,6 @@ defmodule Pleroma.Web.Nodeinfo.NodeinfoController do
       metadata: %{
         nodeName: Keyword.get(instance, :name),
         nodeDescription: Keyword.get(instance, :description),
-        mediaProxy: Keyword.get(media_proxy, :enabled),
         private: !Keyword.get(instance, :public, true),
         suggestions: %{
           enabled: Keyword.get(suggestions, :enabled, false),
@@ -61,9 +78,8 @@ defmodule Pleroma.Web.Nodeinfo.NodeinfoController do
           timeout: Keyword.get(suggestions, :timeout, 5000),
           web: Keyword.get(suggestions, :web, "")
         },
-        staffAccounts: staff_accounts,
-        chat: Keyword.get(chat, :enabled),
-        gopher: Keyword.get(gopher, :enabled)
+        features: features,
+        staffAccounts: staff_accounts
       }
     }
 
