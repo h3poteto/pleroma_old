@@ -33,8 +33,8 @@ defmodule Pleroma.Web.Nodeinfo.NodeinfoController do
       |> Enum.map(fn u -> u.ap_id end)
 
     features = [
-      "pleroma_api_socket",
-      "mastodon_api_socket",
+      "pleroma_api",
+      "mastodon_api",
       "mastodon_api_streaming",
       if Keyword.get(media_proxy, :enabled) do
         "media_proxy"
@@ -43,10 +43,10 @@ defmodule Pleroma.Web.Nodeinfo.NodeinfoController do
         "gopher"
       end,
       if Keyword.get(chat, :enabled) do
-        "pleroma_api_chat"
+        "chat"
       end,
       if Keyword.get(suggestions, :enabled) do
-        "3rdparty_suggestions"
+        "suggestions"
       end
     ]
 
