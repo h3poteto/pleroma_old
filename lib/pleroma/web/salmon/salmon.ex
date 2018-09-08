@@ -5,6 +5,7 @@ defmodule Pleroma.Web.Salmon do
   alias Pleroma.Web.XML
   alias Pleroma.Web.OStatus.ActivityRepresenter
   alias Pleroma.User
+  alias Pleroma.Keys
   require Logger
 
   def decode(salmon) do
@@ -74,45 +75,6 @@ defmodule Pleroma.Web.Salmon do
     exponent_enc = :binary.encode_unsigned(exponent) |> Base.url_encode64()
 
     "RSA.#{modulus_enc}.#{exponent_enc}"
-  end
-
-  # Native generation of RSA keys is only available since OTP 20+ and in default build conditions
-  # We try at compile time to generate natively an RSA key otherwise we fallback on the old way.
-  try do
-    _ = :public_key.generate_key({:rsa, 2048, 65537})
-
-    def generate_rsa_pem do
-      key = :public_key.generate_key({:rsa, 2048, 65537})
-      entry = :public_key.pem_entry_encode(:RSAPrivateKey, key)
-      pem = :public_key.pem_encode([entry]) |> String.trim_trailing()
-      {:ok, pem}
-    end
-  rescue
-    _ ->
-      def generate_rsa_pem do
-        port = Port.open({:spawn, "openssl genrsa"}, [:binary])
-
-        {:ok, pem} =
-          receive do
-            {^port, {:data, pem}} -> {:ok, pem}
-          end
-
-        Port.close(port)
-
-        if Regex.match?(~r/RSA PRIVATE KEY/, pem) do
-          {:ok, pem}
-        else
-          :error
-        end
-      end
-  end
-
-  def keys_from_pem(pem) do
-    [private_key_code] = :public_key.pem_decode(pem)
-    private_key = :public_key.pem_entry_decode(private_key_code)
-    {:RSAPrivateKey, _, modulus, exponent, _, _, _, _, _, _, _} = private_key
-    public_key = {:RSAPublicKey, modulus, exponent}
-    {:ok, private_key, public_key}
   end
 
   def encode(private_key, doc) do
@@ -195,7 +157,7 @@ defmodule Pleroma.Web.Salmon do
         |> :xmerl.export_simple(:xmerl_xml)
         |> to_string
 
-      {:ok, private, _} = keys_from_pem(keys)
+      {:ok, private, _} = Keys.keys_from_pem(keys)
       {:ok, feed} = encode(private, feed)
 
       remote_users(activity)

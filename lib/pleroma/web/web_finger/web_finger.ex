@@ -4,6 +4,7 @@ defmodule Pleroma.Web.WebFinger do
   alias Pleroma.{User, XmlBuilder}
   alias Pleroma.Web
   alias Pleroma.Web.{XML, Salmon, OStatus}
+  alias Pleroma.Keys
   require Jason
   require Logger
 
@@ -45,7 +46,7 @@ defmodule Pleroma.Web.WebFinger do
 
   def represent_user(user, "JSON") do
     {:ok, user} = ensure_keys_present(user)
-    {:ok, _private, public} = Salmon.keys_from_pem(user.info["keys"])
+    {:ok, _private, public} = Keys.keys_from_pem(user.info["keys"])
     magic_key = Salmon.encode_key(public)
 
     %{
@@ -83,7 +84,7 @@ defmodule Pleroma.Web.WebFinger do
 
   def represent_user(user, "XML") do
     {:ok, user} = ensure_keys_present(user)
-    {:ok, _private, public} = Salmon.keys_from_pem(user.info["keys"])
+    {:ok, _private, public} = Keys.keys_from_pem(user.info["keys"])
     magic_key = Salmon.encode_key(public)
 
     {
@@ -118,7 +119,7 @@ defmodule Pleroma.Web.WebFinger do
     if info["keys"] do
       {:ok, user}
     else
-      {:ok, pem} = Salmon.generate_rsa_pem()
+      {:ok, pem} = Keys.generate_rsa_pem()
       info = Map.put(info, "keys", pem)
 
       Ecto.Changeset.change(user, info: info)
