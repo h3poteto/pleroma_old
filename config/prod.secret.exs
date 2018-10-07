@@ -17,7 +17,7 @@ config :pleroma, :instance,
   name: "Pleroma.io",
   email: "h3.poteto@gmail.com",
   limit: 5000,
-  registrations_open: false,
+  registrations_open: true,
   dedupe_media: false
 
 config :pleroma, Pleroma.Repo,
@@ -41,3 +41,6 @@ config :ex_aws, :s3,
 config :pleroma, Pleroma.Upload,
   uploader: Pleroma.Uploaders.S3,
   strip_exif: false
+
+config :pleroma, :chat,
+  enabled: false
