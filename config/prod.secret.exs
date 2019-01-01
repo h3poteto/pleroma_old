@@ -13,6 +13,12 @@ config :pleroma, :media_proxy,
   redirect_on_failure: true
   #base_url: "https://cache.pleroma.io"
 
+config :pleroma, Pleroma.Web.Endpoint,
+  pubsub: [name: Pleroma.PubSub,
+           adapter: Phoenix.PubSub.Redis,
+           host: System.get_env("REDIS_HOST_NAME"),
+           node_name: System.get_env("REDIS_NODE_NAME")]
+
 config :pleroma, :instance,
   name: "Pleroma.io",
   email: "h3.poteto@gmail.com",
@@ -57,3 +63,8 @@ config :pleroma, :suggestions,
   timeout: 300_000,
   limit: 23,
   web: "https://vinayaka.distsn.org/?{{host}}+{{user}}"
+
+config :web_push_encryption, :vapid_details,
+  subject: "mailto:h3.poteto@gmail.com",
+  public_key: System.get_env("WEB_PUSH_PUBLIC_KEY"),
+  private_key: System.get_env("WEB_PUSH_PRIVATE_KEY")
