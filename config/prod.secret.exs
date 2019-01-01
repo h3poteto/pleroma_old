@@ -6,18 +6,17 @@ config :pleroma, Pleroma.Web.Endpoint,
   http: [port: 4000],
   url: [host: "pleroma.io", scheme: "https", port: 443],
   server: true,
-  secret_key_base: System.get_env("SECRET_KEY_BASE")
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
+  pubsub: [name: Pleroma.PubSub,
+           adapter: Phoenix.PubSub.Redis,
+           host: System.get_env("REDIS_HOST_NAME"),
+           node_name: System.get_env("REDIS_NODE_NAME")],
+  check_origin: false
 
 config :pleroma, :media_proxy,
   enabled: true,
   redirect_on_failure: true
   #base_url: "https://cache.pleroma.io"
-
-config :pleroma, Pleroma.Web.Endpoint,
-  pubsub: [name: Pleroma.PubSub,
-           adapter: Phoenix.PubSub.Redis,
-           host: System.get_env("REDIS_HOST_NAME"),
-           node_name: System.get_env("REDIS_NODE_NAME")]
 
 config :pleroma, :instance,
   name: "Pleroma.io",
