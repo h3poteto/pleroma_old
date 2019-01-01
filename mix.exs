@@ -32,7 +32,7 @@ defmodule Pleroma.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Pleroma.Application, []}, extra_applications: [:logger, :runtime_tools, :comeonin]]
+    [mod: {Pleroma.Application, []}, extra_applications: [:logger, :runtime_tools, :comeonin, :phoenix_pubsub_redis]]
   end
 
   # Specifies which paths to compile per environment.
